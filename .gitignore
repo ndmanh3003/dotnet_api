@@ -60,6 +60,5 @@ artifacts/
 .env
 .env.*
 
-appsettings.Development.json
 appsettings.*.json
 !appsettings.json
