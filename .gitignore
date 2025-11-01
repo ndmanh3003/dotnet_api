@@ -1,0 +1,61 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Tt]est[Rr]esults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio specific
+.vs/
+.vscode/
+.idea/
+*.VC.db
+*.VC.VC.opendb
+
+## Rider
+.idea/
+*.sln.iml
+
+## User-specific files
+*.userprefs
+*.pidb
+*.user
+*.userosscache
+*.suo
+
+## OS generated files
+.DS_Store
+Thumbs.db
+
+## Package directories
+packages/
+*.nupkg
+*.snupkg
+
+## Backup and temporary files
+*.bak
+*.tmp
+*.temp
+*.old
+
+## Publish output
+publish/
+*.Publish.xml
+*.pubxml
+*.pubxml.user
+
+## Dotnet CLI
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Others
+*.swp
+*.dbmdl
+*.jfm
+.env
+.env.*
