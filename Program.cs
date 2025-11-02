@@ -14,6 +14,7 @@ builder.Services.AddControllers(options =>
 {
     options.Conventions.Add(new RouteTokenTransformerConvention(new SnakeCaseRouteFactory()));
     options.ValueProviderFactories.Insert(0, new SnakeCaseQueryFactory());
+    options.Filters.Add<OnlyActionsFilter>();
 })
 .AddJsonOptions(options =>
 {
