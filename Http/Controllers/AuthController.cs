@@ -8,6 +8,8 @@ using dotnet.Models;
 using dotnet.Http.Responses;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using dotnet.Common;
+using dotnet.Http.Responses.User;
 
 namespace dotnet.Http.Controllers;
 
@@ -43,13 +45,13 @@ public class AuthController(ApplicationDbContext context, UserRepository userRep
             Picture = User.FindFirstValue("picture")!
         });
 
-        return ApiResponse.Ok(user);
+        return ApiResponse.Ok(user.To<UserIndexDto>());
     }
 
     [Authorize]
     [HttpGet("me")]
     public IActionResult Me()
     {
-        return ApiResponse.Ok(HttpContext.Items["User"] as User);
+        return ApiResponse.Ok((HttpContext.Items["User"] as User)!.To<UserDto>());
     }
 }
