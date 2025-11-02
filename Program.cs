@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using dotnet.Repositories;
 using Microsoft.EntityFrameworkCore;
 using dotnet.Common;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
@@ -18,8 +21,8 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.SnakeCaseLower;
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>("Database");
 builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
     options
         .UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -29,26 +32,45 @@ builder.Services.Scan(scan => scan
     .AddClasses(classes => classes.AssignableTo<IServiceRegistration>())
     .AsSelfWithInterfaces()
     .WithScopedLifetime());
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    options.CallbackPath = "/signin-google";
+
+    options.Scope.Add("email");
+    options.Scope.Add("profile");
+
+    options.ClaimActions.MapJsonKey("email", "email");
+    options.ClaimActions.MapJsonKey("name", "name");
+    options.ClaimActions.MapJsonKey("given_name", "given_name");
+    options.ClaimActions.MapJsonKey("sub", "sub");
+    options.ClaimActions.MapJsonKey("picture", "picture", "url");
+
+    options.SaveTokens = true;
+    options.Events.OnCreatingTicket = context => Task.CompletedTask;
+});
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    Console.WriteLine("Connecting to the database...");
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var canConnect = await db.Database.CanConnectAsync();
-    Console.WriteLine(canConnect ? "✅ OK" : "❌ Fail");
-}
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseMiddleware<ApiExceptionMiddleware>();
 app.UseMiddleware<ValidationMiddleware>();
 app.UseMiddleware<RawBodyMiddleware>();
+
+app.UseAuthentication();
+app.UseMiddleware<CurrentUserMiddleware>();
 app.UseAuthorization();
+
 app.MapControllers();
+app.MapHealthChecks("/health");
+
 app.Run();
