@@ -10,10 +10,12 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using dotnet.Common;
 using dotnet.Http.Responses.User;
+using dotnet.Common.Validation;
 
 namespace dotnet.Http.Controllers;
 
 [ApiController]
+// [OnlyActions(nameof(Login))]
 [Route("api/[controller]")]
 public class AuthController(ApplicationDbContext context, UserRepository userRepo) : ControllerBase
 {
@@ -48,6 +50,7 @@ public class AuthController(ApplicationDbContext context, UserRepository userRep
         return ApiResponse.Ok(user.To<UserIndexDto>());
     }
 
+    // [EnumAuthorize(Role.Student)]
     [Authorize]
     [HttpGet("me")]
     public IActionResult Me()

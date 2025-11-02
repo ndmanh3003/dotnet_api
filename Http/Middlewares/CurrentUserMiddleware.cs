@@ -20,15 +20,25 @@ public class CurrentUserMiddleware(RequestDelegate next)
             return;
         }
 
-        if (context.User.Identity?.IsAuthenticated ?? false)
+        if (!(context.User.Identity?.IsAuthenticated ?? false))
         {
-            var email = context.User.FindFirstValue("email");
-            if (email == null)
-                ApiResponse.Fail("Email claim is missing", status: 400);
+            await _next(context);
+            return;
+        }
 
-            var userRepo = context.RequestServices.GetRequiredService<UserRepository>();
-            var user = await userRepo.FindByEmailAsync(email!, true);
-            context.Items["User"] = user;
+        var email = context.User.FindFirstValue("email");
+        if (string.IsNullOrEmpty(email))
+            ApiResponse.Fail("Email claim is missing", status: 400);
+
+        var userRepo = context.RequestServices.GetRequiredService<UserRepository>();
+        var user = (await userRepo.FindByEmailAsync(email!, true))!;
+        context.Items["User"] = user;
+
+        var identity = (ClaimsIdentity?)context.User.Identity;
+        if (identity != null && !identity.HasClaim(c => c.Type == ClaimTypes.Role))
+        {
+            identity.AddClaim(new Claim(ClaimTypes.Role, user.Role.ToString()));
+            context.User = new ClaimsPrincipal(identity);
         }
 
         await _next(context);

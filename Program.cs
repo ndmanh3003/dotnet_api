@@ -8,6 +8,7 @@ using dotnet.Common;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication;
+using dotnet.Http.Responses;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
@@ -38,7 +39,11 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 })
-.AddCookie()
+.AddCookie(options =>
+{
+    options.Events.OnRedirectToLogin = async context => ApiResponse.Fail("Unauthorized", status: 401);
+    options.Events.OnRedirectToAccessDenied = async context => ApiResponse.Fail("Access denied", status: 403);
+})
 .AddGoogle(options =>
 {
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
@@ -57,7 +62,6 @@ builder.Services.AddAuthentication(options =>
     options.SaveTokens = true;
     options.Events.OnCreatingTicket = context => Task.CompletedTask;
 });
-
 var app = builder.Build();
 
 app.UseHttpsRedirection();
