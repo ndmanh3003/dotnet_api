@@ -10,5 +10,5 @@ public class UserDto : BaseDto
     public string Name { get; set; } = string.Empty;
     public Role Role { get; set; }
     public string Picture { get; set; } = string.Empty;
-    public StudentDto? Student { get; set; }
+    public StudentIndexDto? Student { get; set; }
 }

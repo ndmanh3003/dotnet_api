@@ -1,17 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using dotnet.Enums;
 
 namespace dotnet.Models;
 
 [Table("students")]
-[Index(nameof(StudentId), IsUnique = true)]
+[Index(nameof(Code), IsUnique = true)]
 public class Student : BaseEntity
 {
-    [Required]
     [MaxLength(50)]
     [Column("student_id", TypeName = "varchar(50)")]
-    public string StudentId { get; set; } = string.Empty;
+    public string? Code { get; set; }
 
     [Required]
     [ForeignKey(nameof(User))]
@@ -19,4 +19,21 @@ public class Student : BaseEntity
     public int UserId { get; set; }
 
     public User User { get; set; } = null!;
+
+    [Required]
+    [MaxLength(255)]
+    [Column("name", TypeName = "varchar(255)")]
+    public string Name { get; set; } = string.Empty;
+
+    [Column("year")]
+    public int? Year { get; set; }
+
+    [MaxLength(20)]
+    [Column("major_code", TypeName = "varchar(20)")]
+    public string? MajorCode { get; set; }
+
+    public Major? Major { get; set; }
+
+    [Column("gender", TypeName = "smallint")]
+    public Gender? Gender { get; set; }
 }

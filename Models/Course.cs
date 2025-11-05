@@ -5,14 +5,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace dotnet.Models;
 
-[Index(nameof(CourseId), IsUnique = true)]
+[Index(nameof(Code), IsUnique = true)]
 [Table("courses")]
 public class Course : BaseEntity
 {
     [Required]
     [MaxLength(50)]
-    [Column(TypeName = "varchar(50)")]
-    public string CourseId { get; set; } = string.Empty;
+    [Column("code", TypeName = "varchar(50)")]
+    public string Code { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(255)]

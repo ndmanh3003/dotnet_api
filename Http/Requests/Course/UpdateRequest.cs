@@ -7,7 +7,7 @@ namespace dotnet.Http.Requests.Course;
 public class UpdateRequest
 {
     [StringLength(255)]
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; } = string.Empty;
 
     [ValidEnum<CourseType>]
     public CourseType? Type { get; set; } = null;

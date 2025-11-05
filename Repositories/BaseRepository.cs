@@ -30,9 +30,15 @@ public abstract class BaseRepository<TEntity> : IServiceRegistration
         _dbSet = _context.Set<TEntity>();
     }
 
-    public virtual async Task<TEntity> DetailAsync(int id)
-        => await _dbSet.FindAsync(id)
-           ?? throw new ApiException(404, $"{typeof(TEntity).Name} not found");
+    public virtual async Task<TEntity> DetailAsync(int id, params string[]? includes)
+    {
+        var query = _dbSet.AsQueryable();
+
+        query = ApplyIncludes(query, includes);
+
+        var entity = await query.FirstOrDefaultAsync(e => e.Id == id);
+        return entity ?? throw new ApiException(404, $"{typeof(TEntity).Name} not found");
+    }
 
     public virtual async Task<TEntity> StoreAsync(TEntity entity)
     {
@@ -57,11 +63,15 @@ public abstract class BaseRepository<TEntity> : IServiceRegistration
         return true;
     }
 
-    public virtual async Task<(List<TEntity> Items, Paginate Paginate)> IndexAsync<TCondition>(TCondition options)
-            where TCondition : BaseIndexRequest
+    public virtual async Task<(List<TEntity> Items, Paginate Paginate)> IndexAsync<TCondition>(
+        TCondition options,
+        params string[]? includes
+    )
+        where TCondition : BaseIndexRequest
     {
         var query = _dbSet.AsNoTracking().AsQueryable();
 
+        query = ApplyIncludes(query, includes);
         query = ApplyKeywordFilter(query, options);
         query = ApplyConditions(query, options);
         query = ApplyOrdering(query, options);
@@ -75,7 +85,18 @@ public abstract class BaseRepository<TEntity> : IServiceRegistration
         return (data, paginate);
     }
 
+    protected virtual IQueryable<TEntity> ApplyIncludes(IQueryable<TEntity> query, string[]? includes)
+    {
+        if (includes == null || includes.Length == 0)
+            return query;
+
+        return includes
+            .Where(i => !string.IsNullOrWhiteSpace(i))
+            .Aggregate(query, (current, include) => current.Include(include));
+    }
+
     protected virtual IQueryable<TEntity> ApplyConditions<TCondition>(IQueryable<TEntity> query, TCondition? condition)
+        where TCondition : class
     {
         return query;
     }

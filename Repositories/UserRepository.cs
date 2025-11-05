@@ -8,7 +8,10 @@ public class UserRepository(ApplicationDbContext context) : BaseRepository<User>
 {
     public async Task<User?> FindByEmailAsync(string email, bool throwNotFound = false)
     {
-        var user = await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await _dbSet
+            .Include(u => u.Student!)
+                .ThenInclude(s => s.Major)
+            .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null && throwNotFound)
             ApiResponse.Fail("User not found", status: 404);

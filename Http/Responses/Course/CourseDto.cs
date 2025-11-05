@@ -4,7 +4,7 @@ namespace dotnet.Http.Responses.Course;
 
 public class CourseDto : BaseDto
 {
-    public string CourseId { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public int Credits { get; set; }
     public CourseType Type { get; set; }

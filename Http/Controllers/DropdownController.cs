@@ -15,7 +15,7 @@ public class DropdownController() : ControllerBase
 
     private static readonly Dictionary<string, string[]> ModelMapping = new()
     {
-        { "courses", [ "id", "name", "course_id", "credits" ] },
+        { "courses", [ "id", "name", "code", "credits" ] },
     };
 
     [HttpGet]
