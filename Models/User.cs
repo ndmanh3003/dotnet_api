@@ -35,7 +35,7 @@ public class User : BaseEntity
 
     [MaxLength(500)]
     [Column("picture", TypeName = "varchar(500)")]
-    public string? Picture { get; set; }
+    public string Picture { get; set; } = string.Empty;
 
     public Student? Student { get; set; }
 }

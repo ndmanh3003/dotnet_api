@@ -1,3 +1,4 @@
+using dotnet.Exceptions;
 using System.Collections;
 using System.Reflection;
 
@@ -5,11 +6,11 @@ namespace dotnet.Common
 {
     public static class ObjectExtensions
     {
-        public static TDestination? To<TDestination>(this object? source)
+        public static TDestination To<TDestination>(this object source)
             where TDestination : class
         {
-            if (source == null) return null;
-            return Map(source, typeof(TDestination)) as TDestination;
+            return Map(source, typeof(TDestination)) as TDestination
+                ?? throw new ApiException(message: "Mapping error");
         }
 
         private static object? Map(object? src, Type destType)

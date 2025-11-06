@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Google Login</title>
+  </head>
+  <body
+    style="
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    "
+  >
+    <h2>Test Google Login với backend .NET</h2>
+    <button
+      id="login-btn"
+      style="padding: 10px 20px; font-size: 16px; cursor: pointer"
+    >
+      🔑 Đăng nhập bằng Google
+    </button>
+    <p id="status" style="margin-top: 20px; color: gray"></p>
+
+    <script>
+      const apiBase = 'http://localhost:5086'
+      const googleClientId =
+        '661467940120-t38ofebtt1k63g2kc0elq2krovtmm622.apps.googleusercontent.com'
+      const frontendBaseUrl = window.location.origin
+      const redirectPath = window.location.pathname // Chỉ lấy path, không lấy origin
+      const fullRedirectUri = frontendBaseUrl + redirectPath // Dùng cho Google OAuth
+
+      // Khi bấm nút login
+      document.getElementById('login-btn').addEventListener('click', () => {
+        // Tạo Google OAuth URL
+        const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
+        authUrl.searchParams.set('client_id', googleClientId)
+        authUrl.searchParams.set('redirect_uri', fullRedirectUri)
+        authUrl.searchParams.set('response_type', 'code')
+        authUrl.searchParams.set('scope', 'openid email profile')
+        authUrl.searchParams.set('access_type', 'offline')
+
+        window.location.href = authUrl.toString()
+      })
+
+      // Xử lý callback từ Google
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get('code')
+      const statusEl = document.getElementById('status')
+
+      if (code) {
+        fetch(`${apiBase}/auth/callback`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code,
+            redirect_uri: redirectPath, // Chỉ gửi path, không gửi full URL
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success && data.data?.token) {
+              localStorage.setItem('jwt', data.data.token)
+              statusEl.textContent = '✅ Đăng nhập thành công!'
+              window.history.replaceState({}, '', window.location.pathname)
+              testApi()
+            } else {
+              statusEl.textContent =
+                '⚠️ ' + (data.message || 'Đăng nhập thất bại')
+            }
+          })
+          .catch((err) => {
+            statusEl.textContent = '⚠️ Lỗi khi đăng nhập: ' + err.message
+          })
+      }
+
+      // Test gọi API /api/auth/me nếu có token
+      async function testApi() {
+        const token = localStorage.getItem('jwt')
+        if (!token) return
+        try {
+          const res = await fetch(`${apiBase}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          const data = await res.json()
+          if (data.success && data.data) {
+            statusEl.textContent = `👤 Xin chào ${
+              data.data.name || 'unknown'
+            } (${data.data.email})`
+          }
+        } catch (err) {
+          statusEl.textContent = '⚠️ Lỗi khi gọi API.'
+        }
+      }
+
+      testApi()
+    </script>
+  </body>
+</html>

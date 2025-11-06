@@ -18,4 +18,16 @@ public class UserRepository(ApplicationDbContext context) : BaseRepository<User>
 
         return user;
     }
+
+    protected override IQueryable<User> ApplyIncludes(IQueryable<User> query, string[]? includes)
+    {
+        if (includes == null || includes.Length == 0)
+            return query;
+
+        if (includes.Contains("withStudent"))
+            return query.Include(u => u.Student!)
+                .ThenInclude(s => s.Major);
+
+        return base.ApplyIncludes(query, includes);
+    }
 }

@@ -26,12 +26,17 @@ public class CurrentUserMiddleware(RequestDelegate next)
             return;
         }
 
-        var email = context.User.FindFirstValue("email");
-        if (string.IsNullOrEmpty(email))
-            ApiResponse.Fail("Email claim is missing", status: 400);
+        var userIdClaim = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+        {
+            ApiResponse.Fail("Unauthorized");
+            return;
+        }
 
         var userRepo = context.RequestServices.GetRequiredService<UserRepository>();
-        var user = (await userRepo.FindByEmailAsync(email!, true))!;
+        var user = await userRepo.DetailAsync(userId, ["withStudent"]);
+
         context.Items["User"] = user;
 
         var identity = (ClaimsIdentity?)context.User.Identity;

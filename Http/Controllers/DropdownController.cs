@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace dotnet.Http.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class DropdownController() : ControllerBase
 {
     private const int DefaultLimit = 50;

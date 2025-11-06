@@ -9,7 +9,7 @@ using dotnet.Models;
 namespace dotnet.Http.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public abstract class BaseController<TEntity, TDto, TIndexDto, TIndexReq, TCreateReq, TUpdateReq>(
     BaseRepository<TEntity> repo
 ) : ControllerBase
@@ -27,7 +27,7 @@ public abstract class BaseController<TEntity, TDto, TIndexDto, TIndexReq, TCreat
         [FromQuery] TIndexReq req,
         CancellationToken ct)
     {
-        var (data, paginate) = await _repo.IndexAsync(req.To<TIndexReq>());
+        var (data, paginate) = await _repo.IndexAsync(req.To<TIndexReq>(), []);
         var items = data.To<List<TIndexDto>>();
         return ApiResponse.Ok(new { items, paginate });
     }
