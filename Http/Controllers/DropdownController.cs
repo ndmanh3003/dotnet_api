@@ -19,7 +19,7 @@ public class DropdownController() : ControllerBase
     };
 
     [HttpGet]
-    public IActionResult Get([FromQuery] string enums, [FromQuery] string models, [FromQuery] int page = 1, [FromQuery] int? limit = null)
+    public IActionResult Get([FromQuery] string? enums = "", [FromQuery] string? models = "", [FromQuery] int page = 1, [FromQuery] int? limit = null)
     {
         var response = new Dictionary<string, object?> { };
 

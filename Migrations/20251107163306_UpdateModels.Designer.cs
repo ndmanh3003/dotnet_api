@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using dotnet.Repositories;
@@ -11,9 +12,11 @@ using dotnet.Repositories;
 namespace dotnet.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251107163306_UpdateModels")]
+    partial class UpdateModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,47 +86,6 @@ namespace dotnet.Migrations
                         .HasDatabaseName("ix_courses_code");
 
                     b.ToTable("courses", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Code = "CS101",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Credits = (short)3,
-                            ExerciseHours = (short)15,
-                            Name = "Nhập môn lập trình",
-                            PracticeHours = (short)15,
-                            TheoryHours = (short)30,
-                            Type = (short)1,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Code = "CS201",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Credits = (short)3,
-                            ExerciseHours = (short)15,
-                            Name = "Cấu trúc dữ liệu và giải thuật",
-                            PracticeHours = (short)15,
-                            TheoryHours = (short)30,
-                            Type = (short)1,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Code = "CS301",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Credits = (short)4,
-                            ExerciseHours = (short)15,
-                            Name = "Kỹ năng mềm",
-                            PracticeHours = (short)30,
-                            TheoryHours = (short)30,
-                            Type = (short)2,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("dotnet.Models.Major", b =>

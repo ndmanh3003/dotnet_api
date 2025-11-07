@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using dotnet.Enums.Course;
 
 namespace dotnet.Repositories;
 
@@ -18,6 +19,43 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 new Major { Id = 1, Code = "CNPM", Name = "Công nghệ phần mềm", IsActive = true },
                 new Major { Id = 2, Code = "HTTT", Name = "Hệ thống thông tin", IsActive = true },
                 new Major { Id = 3, Code = "MMT", Name = "Mạng máy tính", IsActive = true },
+            }),
+
+        (typeof(Course), new object[]
+            {
+                new Course
+                {
+                    Id = 1,
+                    Code = "CS101",
+                    Name = "Nhập môn lập trình",
+                    Credits = 3,
+                    Type = CourseType.Compulsory,
+                    TheoryHours = 30,
+                    PracticeHours = 15,
+                    ExerciseHours = 15
+                },
+                new Course
+                {
+                    Id = 2,
+                    Code = "CS201",
+                    Name = "Cấu trúc dữ liệu và giải thuật",
+                    Credits = 3,
+                    Type = CourseType.Compulsory,
+                    TheoryHours = 30,
+                    PracticeHours = 15,
+                    ExerciseHours = 15
+                },
+                new Course
+                {
+                    Id = 3,
+                    Code = "CS301",
+                    Name = "Kỹ năng mềm",
+                    Credits = 4,
+                    Type = CourseType.Optional,
+                    TheoryHours = 30,
+                    PracticeHours = 30,
+                    ExerciseHours = 15
+                },
             }),
     ];
 
