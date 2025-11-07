@@ -16,6 +16,7 @@ public class DropdownController() : ControllerBase
     private static readonly Dictionary<string, string[]> ModelMapping = new()
     {
         { "courses", [ "id", "name", "code", "credits" ] },
+        { "majors", [ "id", "name" ] },
     };
 
     [HttpGet]
@@ -26,7 +27,7 @@ public class DropdownController() : ControllerBase
         if (!string.IsNullOrWhiteSpace(enums))
         {
             var enumDict = new Dictionary<string, object>();
-            response["enum"] = enumDict;
+            response["enums"] = enumDict;
 
             foreach (var key in enums.Split(',', StringSplitOptions.RemoveEmptyEntries))
             {
@@ -37,7 +38,7 @@ public class DropdownController() : ControllerBase
         if (!string.IsNullOrWhiteSpace(models))
         {
             var modelDict = new Dictionary<string, object>();
-            response["model"] = modelDict;
+            response["models"] = modelDict;
 
             foreach (var key in models.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 modelDict[key] = GetModelValues(key, page, limit ?? DefaultLimit);
@@ -53,7 +54,12 @@ public class DropdownController() : ControllerBase
         if (!ModelMapping.TryGetValue(key, out var columns) || columns.Length < 2)
             return [];
 
-        var _db = HttpContext.RequestServices.GetService<ApplicationDbContext>()!;
+        var connectionString = HttpContext.RequestServices
+            .GetRequiredService<IConfiguration>()
+            .GetConnectionString("DefaultConnection");
+
+        using var conn = new Npgsql.NpgsqlConnection(connectionString);
+        conn.Open();
 
         try
         {
@@ -67,10 +73,6 @@ public class DropdownController() : ControllerBase
             if (page < 1) page = 1;
             var offset = (page - 1) * limit;
             var sql = $"SELECT {string.Join(", ", selectCols)} FROM \"{key}\" LIMIT {limit} OFFSET {offset}";
-
-
-            using var conn = _db.Database.GetDbConnection();
-            conn.Open();
 
             using var cmd = conn.CreateCommand();
             cmd.CommandText = sql;
@@ -93,7 +95,6 @@ public class DropdownController() : ControllerBase
             return [];
         }
     }
-
     private static IEnumerable<object> GetEnumValues(string key)
     {
         try

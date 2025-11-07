@@ -27,7 +27,7 @@ public abstract class BaseController<TEntity, TDto, TIndexDto, TIndexReq, TCreat
         [FromQuery] TIndexReq req,
         CancellationToken ct)
     {
-        var (data, paginate) = await _repo.IndexAsync(req.To<TIndexReq>(), []);
+        var (data, paginate) = await _repo.IndexAsync(req.To<TIndexReq>(), null);
         var items = data.To<List<TIndexDto>>();
         return ApiResponse.Ok(new { items, paginate });
     }
@@ -35,7 +35,7 @@ public abstract class BaseController<TEntity, TDto, TIndexDto, TIndexReq, TCreat
     [HttpGet("{id}")]
     public virtual async Task<IActionResult> Detail(string id, CancellationToken ct)
     {
-        var detail = await _repo.DetailAsync(ParseId(id));
+        var detail = await _repo.DetailAsync(ParseId(id), null);
         return ApiResponse.Ok(detail.To<TDto>());
     }
 

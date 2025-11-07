@@ -12,8 +12,8 @@ public class MajorRepository : BaseRepository<Major>
     }
 
     protected override IQueryable<Major> ApplyConditions<TCondition>(
-    IQueryable<Major> query,
-    TCondition condition)
+        IQueryable<Major> query,
+        TCondition condition)
     where TCondition : class
     {
         if (condition is not IndexRequest req)

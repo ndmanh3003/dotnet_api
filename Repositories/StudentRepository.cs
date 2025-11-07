@@ -10,7 +10,7 @@ public class StudentRepository : BaseRepository<Student>
         _orderableFields = ["Id", "Name", "Year", "Code"];
     }
 
-    public override async Task<Student> DetailAsync(int id, params string[]? includes)
+    public override async Task<Student> DetailAsync(int id, string[]? includes = null)
     {
         return await base.DetailAsync(id, includes ?? ["Major"]);
     }
