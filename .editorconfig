@@ -233,3 +233,6 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 # CS8765: Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
 dotnet_diagnostic.CS8765.severity = none
+
+# Default severity for analyzer diagnostics with category 'Performance'
+dotnet_analyzer_diagnostic.category-Performance.severity = silent

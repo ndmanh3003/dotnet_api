@@ -132,4 +132,5 @@ public abstract class BaseRepository<TEntity> : IServiceRegistration
 
         return query.Skip((page - 1) * limit).Take(limit);
     }
+
 }

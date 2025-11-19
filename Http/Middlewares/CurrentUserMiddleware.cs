@@ -35,7 +35,7 @@ public class CurrentUserMiddleware(RequestDelegate next)
         }
 
         var userRepo = context.RequestServices.GetRequiredService<UserRepository>();
-        var user = await userRepo.DetailAsync(userId, ["withStudent"]);
+        var user = await userRepo.DetailAsync(userId);
 
         context.Items["User"] = user;
 

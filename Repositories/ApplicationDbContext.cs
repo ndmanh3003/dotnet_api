@@ -1,63 +1,16 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using dotnet.Enums.Course;
 
 namespace dotnet.Repositories;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public DbSet<Course> Courses { get; set; }
-    public DbSet<Student> Students { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<Major> Majors { get; set; }
+    public DbSet<Todo> Todos { get; set; }
 
-    private static readonly (Type EntityType, object[] Data)[] _seedData =
-    [
-        (typeof(Major), new object[]
-            {
-                new Major { Id = 1, Code = "CNPM", Name = "Công nghệ phần mềm", IsActive = true },
-                new Major { Id = 2, Code = "HTTT", Name = "Hệ thống thông tin", IsActive = true },
-                new Major { Id = 3, Code = "MMT", Name = "Mạng máy tính", IsActive = true },
-            }),
-
-        (typeof(Course), new object[]
-            {
-                new Course
-                {
-                    Id = 1,
-                    Code = "CS101",
-                    Name = "Nhập môn lập trình",
-                    Credits = 3,
-                    Type = CourseType.Compulsory,
-                    TheoryHours = 30,
-                    PracticeHours = 15,
-                    ExerciseHours = 15
-                },
-                new Course
-                {
-                    Id = 2,
-                    Code = "CS201",
-                    Name = "Cấu trúc dữ liệu và giải thuật",
-                    Credits = 3,
-                    Type = CourseType.Compulsory,
-                    TheoryHours = 30,
-                    PracticeHours = 15,
-                    ExerciseHours = 15
-                },
-                new Course
-                {
-                    Id = 3,
-                    Code = "CS301",
-                    Name = "Kỹ năng mềm",
-                    Credits = 4,
-                    Type = CourseType.Optional,
-                    TheoryHours = 30,
-                    PracticeHours = 30,
-                    ExerciseHours = 15
-                },
-            }),
-    ];
+    private static readonly (Type EntityType, object[] Data)[] _seedData = [];
 
     private static void ApplySeeds(ModelBuilder modelBuilder, (Type EntityType, object[] Data)[] seeds)
     {
@@ -80,7 +33,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .GetMethods()
                 .First(m => m.Name == nameof(EntityTypeBuilder<object>.HasData) && m.GetParameters().Length == 1);
 
-            hasDataMethod.Invoke(entityBuilder, new object[] { typedArray });
+            hasDataMethod.Invoke(entityBuilder, [typedArray]);
         }
     }
 
@@ -98,11 +51,26 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             method?.Invoke(null, [modelBuilder]);
         }
 
-        modelBuilder.Entity<Student>()
-            .HasOne(s => s.Major)
+        modelBuilder.Entity<Todo>()
+            .HasOne(t => t.User)
             .WithMany()
-            .HasForeignKey(s => s.MajorCode)
-            .HasPrincipalKey(m => m.Code);
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType.IsEnum)
+                {
+                    property.SetColumnType("varchar(50)");
+                    property.SetMaxLength(50);
+                    var converterType = typeof(EnumToStringConverter<>).MakeGenericType(property.ClrType);
+                    var converter = Activator.CreateInstance(converterType);
+                    property.SetValueConverter((ValueConverter)converter!);
+                }
+            }
+        }
 
         ApplySeeds(modelBuilder, _seedData);
     }

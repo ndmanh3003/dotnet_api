@@ -1,15 +1,12 @@
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace dotnet.Enums;
 
 public enum Role
 {
-    [Description("Học sinh")]
-    Student = 1,
+    [Display(Name = "Quản trị viên")]
+    Admin,
 
-    [Description("Giáo vụ")]
-    Admin = 2,
-
-    [Description("Giảng viên")]
-    Lecturer = 3
+    [Display(Name = "Người dùng")]
+    User,
 }

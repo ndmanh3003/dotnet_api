@@ -1,5 +1,4 @@
 using dotnet.Enums;
-using dotnet.Http.Responses.Student;
 
 namespace dotnet.Http.Responses.User;
 
@@ -10,5 +9,4 @@ public class UserDto : BaseDto
     public string Name { get; set; } = string.Empty;
     public Role Role { get; set; }
     public string Picture { get; set; } = string.Empty;
-    public StudentIndexDto? Student { get; set; }
 }

@@ -10,6 +10,7 @@ namespace dotnet.Http.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Produces("application/json")]
 public abstract class BaseController<TEntity, TDto, TIndexDto, TIndexReq, TCreateReq, TUpdateReq>(
     BaseRepository<TEntity> repo
 ) : ControllerBase

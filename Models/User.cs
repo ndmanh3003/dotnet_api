@@ -30,12 +30,11 @@ public class User : BaseEntity
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [Column("role", TypeName = "smallint")]
+    [MaxLength(50)]
+    [Column("role", TypeName = "varchar(50)")]
     public Role Role { get; set; }
 
     [MaxLength(500)]
     [Column("picture", TypeName = "varchar(500)")]
     public string Picture { get; set; } = string.Empty;
-
-    public Student? Student { get; set; }
 }

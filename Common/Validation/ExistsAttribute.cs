@@ -25,7 +25,7 @@ public class ExistsAttribute(string tableName, string columnName) : ValidationAt
         if (dbContext == null)
             throw new InvalidOperationException("ApplicationDbContext is not available in validation context.");
 
-        var sql = $"SELECT 1 FROM \"{_tableName}\" WHERE \"{_columnName}\" = @p0 LIMIT 1";
+        var sql = $"SELECT 1 FROM `{_tableName}` WHERE `{_columnName}` = @p0 LIMIT 1";
         var exists = dbContext.Database
             .SqlQueryRaw<int>(sql, value)
             .Any();

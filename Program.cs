@@ -1,13 +1,11 @@
 using System.Text;
-using System.Text.Json;
+using System.Text.Json.Serialization;
 using dotnet.Http.Middlewares;
 using dotnet.Repositories;
 using dotnet.Common;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using dotnet.Http.Responses;
 using dotnet.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,22 +22,21 @@ builder.Services.AddCors(options =>
 // ===== Controllers =====
 builder.Services.AddControllers(options =>
 {
-    options.Conventions.Add(new RouteTokenTransformerConvention(new SnakeCaseRouteFactory()));
-    options.ValueProviderFactories.Insert(0, new SnakeCaseQueryFactory());
     options.Filters.Add<OnlyActionsFilter>();
 })
-.AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy =
-    options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.SnakeCaseLower);
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>("Database");
 builder.Services.AddHttpClient();
 
 // ===== Database =====
 builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
-    options.UseNpgsql(config.GetConnectionString("DefaultConnection"))
-           .UseSnakeCaseNamingConvention());
+    options.UseMySql(config.GetConnectionString("DefaultConnection"), 
+        new MySqlServerVersion(new Version(8, 0, 21))));
 
 // ===== Dependency Injection =====
 builder.Services.Scan(scan => scan

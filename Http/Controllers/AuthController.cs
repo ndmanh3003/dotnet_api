@@ -11,6 +11,7 @@ namespace dotnet.Http.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Produces("application/json")]
 public class AuthController(
     GoogleService googleService,
     AuthService authService,
@@ -27,7 +28,6 @@ public class AuthController(
     {
         var redirectPath = request.RedirectUri.TrimStart('/');
         var redirectUri = $"{_configuration["Client:BaseUrl"]!.TrimEnd('/')}/{redirectPath}";
-
         var tokenResponse = await _googleService.ExchangeCodeForTokenAsync(request.Code, redirectUri);
         var userInfo = await _googleService.GetUserInfoAsync(tokenResponse.AccessToken);
 

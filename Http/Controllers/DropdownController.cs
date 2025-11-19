@@ -1,23 +1,18 @@
-using dotnet.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace dotnet.Http.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Produces("application/json")]
 public class DropdownController() : ControllerBase
 {
     private const int DefaultLimit = 50;
 
-    private static readonly Dictionary<string, string[]> ModelMapping = new()
-    {
-        { "courses", [ "id", "name", "code", "credits" ] },
-        { "majors", [ "id", "name" ] },
-    };
+    private static readonly Dictionary<string, string[]> ModelMapping = [];
 
     [HttpGet]
     public IActionResult Get([FromQuery] string? enums = "", [FromQuery] string? models = "", [FromQuery] int page = 1, [FromQuery] int? limit = null)
@@ -49,7 +44,7 @@ public class DropdownController() : ControllerBase
 
     private IEnumerable<object> GetModelValues(string modelKey, int page, int limit)
     {
-        var key = modelKey.Trim().ToLower();
+        var key = modelKey.Trim();
 
         if (!ModelMapping.TryGetValue(key, out var columns) || columns.Length < 2)
             return [];
@@ -58,21 +53,21 @@ public class DropdownController() : ControllerBase
             .GetRequiredService<IConfiguration>()
             .GetConnectionString("DefaultConnection");
 
-        using var conn = new Npgsql.NpgsqlConnection(connectionString);
+        using var conn = new MySqlConnector.MySqlConnection(connectionString);
         conn.Open();
 
         try
         {
             var selectCols = new List<string>
                 {
-                    $"\"{columns[0]}\" AS \"value\"",
-                    $"\"{columns[1]}\" AS \"label\""
+                    $"`{columns[0]}` AS `value`",
+                    $"`{columns[1]}` AS `label`"
                 };
-            selectCols.AddRange(columns.Skip(2).Select(c => $"\"{c}\""));
+            selectCols.AddRange(columns.Skip(2).Select(c => $"`{c}`"));
 
             if (page < 1) page = 1;
             var offset = (page - 1) * limit;
-            var sql = $"SELECT {string.Join(", ", selectCols)} FROM \"{key}\" LIMIT {limit} OFFSET {offset}";
+            var sql = $"SELECT {string.Join(", ", selectCols)} FROM `{key}` LIMIT {limit} OFFSET {offset}";
 
             using var cmd = conn.CreateCommand();
             cmd.CommandText = sql;
@@ -100,11 +95,12 @@ public class DropdownController() : ControllerBase
         try
         {
             var parts = key.Split('.', StringSplitOptions.RemoveEmptyEntries);
-            var enumName = ToPascalFromSnake(parts.Last());
-            var nsParts = parts.Take(parts.Length - 1).Select(ToPascalFromSnake);
+            var enumName = parts.Last();
+            var nsParts = parts.Take(parts.Length - 1);
             string fullName = nsParts.Any()
                             ? $"dotnet.Enums.{string.Join(".", nsParts)}.{enumName}"
                             : $"dotnet.Enums.{enumName}";
+            Console.WriteLine(fullName);
 
             var enumType = AppDomain.CurrentDomain
                 .GetAssemblies()
@@ -118,10 +114,10 @@ public class DropdownController() : ControllerBase
                 .Cast<Enum>()
                 .Select(e => new
                 {
-                    value = Convert.ToInt32(e),
+                    value = e.ToString(),
                     label = e.GetType()
                         .GetField(e.ToString())?
-                        .GetCustomAttribute<DescriptionAttribute>()?.Description ?? e.ToString()
+                        .GetCustomAttribute<DisplayAttribute>()?.GetName() ?? e.ToString()
                 })
                 .ToList();
         }
@@ -129,15 +125,5 @@ public class DropdownController() : ControllerBase
         {
             return [];
         }
-    }
-
-    private static string ToPascalFromSnake(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input)) return input;
-        input = input.ToLowerInvariant();
-        var parts = Regex.Split(input, @"[_\-]+");
-        return string.Concat(parts.Select(p =>
-            p.Length == 0 ? "" : char.ToUpper(p[0]) + p.Substring(1)
-        ));
     }
 }
