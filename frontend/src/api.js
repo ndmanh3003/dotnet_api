@@ -26,7 +26,7 @@ api.interceptors.response.use(
 );
 
 export const authAPI = {
-  callback: (code) => api.post('/auth/callback', {code, redirectUri: '/login'}),
+  callback: (code) => api.post('/auth/callback', {code, redirectUri: import.meta.env.VITE_REDIRECT_URI}),
   me: () => api.get('/auth/me'),
 };
 

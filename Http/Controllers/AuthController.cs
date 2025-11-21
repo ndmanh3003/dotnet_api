@@ -26,9 +26,7 @@ public class AuthController(
     [HttpPost("callback")]
     public async Task<IActionResult> Callback([FromBody] CallbackRequest request)
     {
-        var redirectPath = request.RedirectUri.TrimStart('/');
-        var redirectUri = $"{_configuration["Client:BaseUrl"]!.TrimEnd('/')}/{redirectPath}";
-        var tokenResponse = await _googleService.ExchangeCodeForTokenAsync(request.Code, redirectUri);
+        var tokenResponse = await _googleService.ExchangeCodeForTokenAsync(request.Code, request.RedirectUri.TrimStart('/'));
         var userInfo = await _googleService.GetUserInfoAsync(tokenResponse.AccessToken);
 
         var user = await _authService.ProcessGoogleUserAsync(userInfo);
