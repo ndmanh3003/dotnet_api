@@ -7,15 +7,16 @@ public abstract class BaseEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id")]
     public int Id { get; set; }
 
-    [Column(TypeName = "datetime(6)")]
+    [Column("created_at", TypeName = "datetime(6)")]
     public DateTime CreatedAt { get; set; }
 
-    [Column(TypeName = "datetime(6)")]
+    [Column("updated_at", TypeName = "datetime(6)")]
     public DateTime UpdatedAt { get; set; }
 
-    [Column(TypeName = "datetime(6)")]
+    [Column("deleted_at", TypeName = "datetime(6)")]
     public DateTime? DeletedAt { get; set; }
 }
 

@@ -61,6 +61,6 @@ artifacts/
 .env.*
 
 appsettings.*.json
-!appsettings.json
+!appsettings.Example.json
 
 out/

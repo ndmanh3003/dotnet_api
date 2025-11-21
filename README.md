@@ -1,58 +1,76 @@
-# .NET API
+# Quản lý công việc
 
-## Kết nối
+Ứng dụng quản lý công việc với .NET backend và React frontend.
 
-### Database
-Yêu cầu MySQL. Cấu hình connection string trong `appsettings.json`:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=3306;Database=mydb;User=your_user;Password=your_password;"
-  }
-}
-```
+## Yêu cầu hệ thống
 
-### JWT Authentication
-Cấu hình JWT trong `appsettings.json`:
-```json
-{
-  "Jwt": {
-    "Issuer": "your_issuer",
-    "Audience": "your_audience",
-    "Key": "your_secret_key",
-    "ExpirationDays": 7
-  }
-}
-```
+- .NET 9.0 SDK
+- Node.js 18+ và npm
+- MySQL 8.0+
+- Google OAuth credentials
 
-### Google OAuth
-Cấu hình Google OAuth:
-```json
-{
-  "Authentication": {
-    "Google": {
-      "ClientId": "your_google_client_id",
-      "ClientSecret": "your_google_client_secret"
-    }
-  }
-}
-```
+## Cài đặt
 
-### Client URL
-Cấu hình CORS client URL:
-```json
-{
-  "Client": {
-    "BaseUrl": "http://localhost:3000"
-  }
-}
-```
+1. **Cài đặt dependencies:**
+   ```bash
+   dotnet restore
+   ```
 
+2. **Cấu hình database:**
+   - Copy `appsettings.Example.json` thành `appsettings.Development.json`
+   - Cập nhật connection string trong `appsettings.Development.json`:
+     ```json
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=localhost;Port=3306;Database=mydb;User=your_user;Password=your_password;"
+     }
+     ```
+
+3. **Cấu hình Google OAuth:**
+   - Lấy Google Client ID và Client Secret từ [Google Cloud Console](https://console.cloud.google.com/)
+   - Cập nhật trong `appsettings.Development.json`:
+     ```json
+     "Authentication": {
+       "Google": {
+         "ClientId": "your_google_client_id",
+         "ClientSecret": "your_google_client_secret"
+       }
+     }
+     ```
+
+4. **Cấu hình JWT:**
+   - Tạo secret key (tối thiểu 32 ký tự)
+   - Cập nhật trong `appsettings.Development.json`:
+     ```json
+     "Jwt": {
+       "Key": "your_secret_key_at_least_32_characters_long",
+       "Issuer": "https://api.yourdomain.com",
+       "Audience": "https://yourdomain.com",
+       "ExpirationDays": 7
+     }
+     ```
+
+5. **Cấu hình Client URL:**
+   - Cập nhật BaseUrl trong `appsettings.Development.json` để khớp với frontend:
+     ```json
+     "Client": {
+       "BaseUrl": "http://127.0.0.1:5000"
+     }
+     ```
+
+6. **Chạy migrations:**
+   ```bash
+   dotnet ef database update
+   ```
+
+## Chạy ứng dụng
+   ```bash
+   dotnet watch run
+   ```
 ## Endpoints
-
 | Method | Endpoint | Mô tả | Quyền |
 |--------|----------|-------|-------|
-| POST | `/auth/callback` | Google OAuth callback, trả về JWT token và user info | Public |
+| POST | `/health` | Trạng thái database | Public |
+| POST | `/auth/callback` | Google OAuth callback, trả về JWT | Public |
 | GET | `/auth/me` | Lấy thông tin user hiện tại | Authenticated |
 | GET | `/todo` | Danh sách todos (có phân trang, tìm kiếm, sắp xếp) | Authenticated |
 | GET | `/todo/{id}` | Chi tiết todo | Authenticated |
